@@ -146,10 +146,10 @@ O perímetro é a medida do contorno de uma figura. Conte quantos ladinhos de qu
 
 Explicação:
 Contando os lados de 1 cm do contorno externo de cada figura da malha:
-- Figura I (Formato L): Possui contorno de 14 cm.
-- Figura II (Formato Cruz): Possui 12 lados expostos de 1 cm cada. Perímetro = 12 cm.
-- Figura III: Possui perímetro de 22 cm.
-- Figura IV: Possui perímetro de 14 cm.
+* Figura I (Formato L): Possui contorno de 14 cm.
+* Figura II (Formato Cruz): Possui 12 lados expostos de 1 cm cada. Perímetro = 12 cm.
+* Figura III: Possui perímetro de 22 cm.
+* Figura IV: Possui perímetro de 14 cm.
 
 Portanto, a figura com perímetro igual a 12 cm é a Figura II.
 
