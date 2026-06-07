@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Plataforma de Estudos</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Placar Estilizado no Topo */
+        .topo-fixo {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .placar {
+            font-size: 20px;
+            color: #2196F3;
+            font-weight: bold;
+            background: #e3f2fd;
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            text-align: left;
+            margin: 8px 0;
+            transition: 0.2s;
+            background: #eef2f3;
+            border: 1px solid #dcdfe6;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #e0e6ed;
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-voltar {
+            background: transparent;
+            color: #666;
+            width: auto;
+            border: none;
+        }
+
+        .img-enunciado {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: block;
+            border: 1px solid #eef2f3;
+        }
+
+        .info-questao {
+            font-size: 14px;
+            color: #909399;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Caixas de Mensagem */
+        .box {
+            padding: 18px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+
+        .box-dica {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            color: #856404;
+        }
+
+        .box-resolucao {
+            background: #f4f7f6;
+        }
+
+        .sucesso-border {
+            border-left: 5px solid #4CAF50;
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .erro-border {
+            border-left: 5px solid #f44336;
+            background: #ffebee;
+            color: #b71c1c;
+        }
+
+        .btn-avancar {
+            background: #2196F3;
+            color: white;
+            text-align: center;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn-avancar:hover {
+            background: #1e88e5;
+        }
+
+        .lista-testes {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card-teste {
+            display: block;
+            padding: 18px;
+            background: #eef2f3;
+            margin: 12px 0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .card-teste:hover {
+            background: #2196F3;
+            color: white;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container-home" style="display:none;" class="container"></div>
+
+    <div id="container-jogo" style="display:none; max-width:650px; margin: 0 auto;">
+        <div class="topo-fixo">
+            <button class="btn btn-voltar" onclick="window.location.href='?'">⬅️ Menu</button>
+            <div class="placar">Sua Pontuação: <span id="placar">0</span> ⭐</div>
+        </div>
+
+        <div class="container">
+            <div id="jogo-area"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
