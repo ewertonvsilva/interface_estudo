@@ -13,7 +13,7 @@ const urlParams = new URLSearchParams(window.location.search);
 testeId = urlParams.get('teste');
 
 async function inicializar() {
-    document.getElementById('link-indice-externo').href = `https://docs.google.com/forms/d/e/1FAIpQLSc7ibzbk6aPBl8Yh6uG66ag7dttJ6zxUZwF6AXixSiPMFYJBQ/viewform`;
+
 
     alunoNomeOriginal = localStorage.getItem("atual_aluno_nome_original") || "";
     alunoNomeNormalizado = localStorage.getItem("atual_aluno_nome_normalizado") || "";
