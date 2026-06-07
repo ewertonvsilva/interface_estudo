@@ -9,16 +9,12 @@ let alunoNomeOriginal = "";
 let alunoNomeNormalizado = "";
 let tempoInicioQuestao = 0;
 
-// Configurações das URLs do Dontpad (Substitua pelos seus sufixos exclusivos)
-const SUFIXO_INDICE_GERAL = "nananaewe_simulado_indice_geral_2026";
-const URL_DONTPAD_INDICE = `https://api.dontpad.com/${SUFIXO_INDICE_GERAL}.txt`;
-
 const urlParams = new URLSearchParams(window.location.search);
 testeId = urlParams.get('teste');
 
 async function inicializar() {
-    // Atualiza o link do índice geral no rodapé da página inicial
-    document.getElementById('link-indice-externo').href = `https://dontpad.com/${SUFIXO_INDICE_GERAL}`;
+    // Atualiza o link do formulário no rodapé da página inicial
+    document.getElementById('link-indice-externo').href = `https://docs.google.com/forms/d/e/1FAIpQLSc7ibzbk6aPBl8Yh6uG66ag7dttJ6zxUZwF6AXixSiPMFYJBQ/viewform`;
 
     // Recupera se já havia um aluno logado nesta máquina
     alunoNomeOriginal = localStorage.getItem("atual_aluno_nome_original") || "";
@@ -52,7 +48,7 @@ function entrarNaPlataforma() {
         return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
     }).join(' ');
 
-    // 2. Normalização para URL Dontpad (remove acentos, troca espaços por sublinhado, tudo minúsculo)
+    // 2. Normalização (remove acentos, troca espaços por sublinhado, tudo minúsculo)
     alunoNomeNormalizado = alunoNomeOriginal
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "") // Remove acentos acentuados
@@ -64,38 +60,12 @@ function entrarNaPlataforma() {
     localStorage.setItem("atual_aluno_nome_original", alunoNomeOriginal);
     localStorage.setItem("atual_aluno_nome_normalizado", alunoNomeNormalizado);
 
-    // Registra este aluno de forma assíncrona na lista central do Dontpad
-    registrarAlunoNoIndiceGeral(alunoNomeOriginal, alunoNomeNormalizado);
-
     document.getElementById('container-login').style.display = 'none';
 
     if (!testeId) {
         carregarMenuPrincipal();
     } else {
         carregarTesteEspecifico(testeId);
-    }
-}
-
-// Registra o link do Dontpad do aluno no arquivo índice principal (sem duplicar)
-async function registrarAlunoNoIndiceGeral(nomeCompleto, nomeUrl) {
-    const linkAluno = `dontpad.com/simulado_aluno_${nomeUrl}`;
-    const linhaRegistro = `${nomeCompleto} -> https://${linkAluno}`;
-
-    try {
-        const res = await fetch(URL_DONTPAD_INDICE);
-        const textoIndice = await res.text();
-
-        // Verifica se o aluno já foi listado antes para não poluir o arquivo
-        if (!textoIndice.includes(linkAluno)) {
-            const novoIndice = textoIndice.trim() + "\n" + linhaRegistro;
-            await fetch(URL_DONTPAD_INDICE, {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "text=" + encodeURIComponent(novoIndice)
-            });
-        }
-    } catch (err) {
-        console.error("Falha ao atualizar o índice central:", err);
     }
 }
 
@@ -232,9 +202,9 @@ function verificarResposta(letraEscolhida) {
         document.querySelectorAll('.btn-opcao').forEach(btn => btn.disabled = true);
         document.getElementById('box-dica').style.display = 'none';
 
-        // Log de tempo e envio assíncrono para a URL exclusiva do aluno no Dontpad
+        // Log de tempo e envio assíncrono para o Google Sheets
         const tempoGastoSegundos = Math.round((Date.now() - tempoInicioQuestao) / 1000);
-        salvarNoDontpadDoAluno(q.id, tentativas + 1, tempoGastoSegundos);
+        salvarStatusNoGoogleSheets(q.id, tentativas + 1, tempoGastoSegundos);
 
         let htmlResolucao = `<h4>🌟 Excelente! Você acertou e ganhou +${pontosGanhos} pontos!</h4>`;
         if (q.resolucaoTexto) htmlResolucao += `<p>${q.resolucaoTexto}</p>`;
@@ -258,7 +228,7 @@ function verificarResposta(letraEscolhida) {
             document.getElementById('box-dica').style.display = 'none';
 
             const tempoGastoSegundos = Math.round((Date.now() - tempoInicioQuestao) / 1000);
-            salvarNoDontpadDoAluno(q.id, tentativas, tempoGastoSegundos);
+            salvarStatusNoGoogleSheets(q.id, tentativas, tempoGastoSegundos);
 
             let htmlResolucao = `<h4>⚠️ Tentativas esgotadas! Vamos aprender?</h4>`;
             if (q.resolucaoTexto) htmlResolucao += `<p>${q.resolucaoTexto}</p>`;
@@ -272,22 +242,27 @@ function verificarResposta(letraEscolhida) {
     }
 }
 
-async function salvarNoDontpadDoAluno(questaoId, totalTentativas, segundos) {
-    const URL_ALUNO = `https://api.dontpad.com/simulado_aluno_${alunoNomeNormalizado}.txt`;
-    const novaLinha = `[${new Date().toLocaleString()}] Simulado: ${testeId} | Questão: ${questaoId} | Tentativas: ${totalTentativas} | Tempo: ${segundos}s\n`;
+async function salvarStatusNoGoogleSheets(questaoId, totalTentativas, segundos) {
+    const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc7ibzbk6aPBl8Yh6uG66ag7dttJ6zxUZwF6AXixSiPMFYJBQ/formResponse";
+    
+    const formData = new URLSearchParams();
+    formData.append("entry.573764493", alunoNomeOriginal); // Aluno
+    formData.append("entry.561164763", testeId);            // Simulado
+    formData.append("entry.1414238788", questaoId);        // Questao
+    formData.append("entry.742561518", totalTentativas);   // Tentativas
+    formData.append("entry.223264347", segundos);          // Tempo (s)
 
     try {
-        const res = await fetch(URL_ALUNO);
-        const historicoAntigo = await res.text();
-        const historicoAtualizado = historicoAntigo + novaLinha;
-
-        await fetch(URL_ALUNO, {
+        await fetch(GOOGLE_FORM_URL, {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "text=" + encodeURIComponent(historicoAtualizado)
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: formData.toString()
         });
     } catch (e) {
-        console.error("Erro ao sincronizar Dontpad do aluno.");
+        console.error("Erro ao salvar progresso no Google Sheets:", e);
     }
 }
 
