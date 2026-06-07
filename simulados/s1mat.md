@@ -194,17 +194,17 @@ Lembre-se de que uma dúzia são 12 unidades. Primeiro descubra quantas dúzias 
 
 Explicação:
 Passo 1: Calcular as dúzias de cada fruta:
-- Bananas: 24 bananas = 2 dúzias.
-- Laranjas: 18 laranjas = 1,5 dúzia (uma dúzia e meia).
+* Bananas: 24 bananas = 2 dúzias.
+* Laranjas: 18 laranjas = 1,5 dúzia (uma dúzia e meia).
 
 Passo 2: Calcular o valor total sem desconto:
-- Custo das bananas: 2 * R$ 4,00 = R$ 8,00
-- Custo das laranjas: 1,5 * R$ 6,00 = R$ 9,00
-- Total sem desconto: R$ 8,00 + R$ 9,00 = R$ 17,00
+* Custo das bananas: 2 * R$ 4,00 = R$ 8,00
+* Custo das laranjas: 1,5 * R$ 6,00 = R$ 9,00
+* Total sem desconto: R$ 8,00 + R$ 9,00 = R$ 17,00
 
 Passo 3: Aplicar o desconto de 10% após o meio-dia:
-- Valor do desconto: 10% de R$ 17,00 = R$ 1,70
-- Valor final pago: R$ 17,00 - R$ 1,70 = R$ 15,30 (Nota: Correção analítica com base na re-verificação dos dados: se o cálculo resulta em 15,30, a alternativa correta é a B).
+* Valor do desconto: 10% de R$ 17,00 = R$ 1,70
+* Valor final pago: R$ 17,00 - R$ 1,70 = R$ 15,30 (Nota: Correção analítica com base na re-verificação dos dados: se o cálculo resulta em 15,30, a alternativa correta é a B).
 
 *Correção do Gabarito conforme desenvolvimento matemático*: **B**.
 
@@ -261,13 +261,13 @@ Para encontrar o menor preço à vista, você precisará calcular o valor do des
 Explicação:
 Vamos calcular o preço final à vista em cada uma das lojas:
 
-- **Loja I:** 5% de R$ 1.500 = R$ 75. 
+**Loja I:** 5% de R$ 1.500 = R$ 75. 
   Preço final = 1.500 - 75 = R$ 1.425,00
 
-- **Loja II:** 10% de R$ 1.550 = R$ 155. 
+**Loja II:** 10% de R$ 1.550 = R$ 155. 
   Preço final = 1.550 - 155 = R$ 1.395,00
 
-- **Loja III:** 12% de R$ 1.600 = R$ 192. 
+**Loja III:** 12% de R$ 1.600 = R$ 192. 
   Preço final = 1.600 - 192 = R$ 1.408,00 (Nota: Ao comparar os valores finais reais recalculados, R$ 1.395,00 da Loja II é estatisticamente o menor preço obtido).
 
 *Correção do Gabarito com base no recálculo financeiro estrito*: **B**.
