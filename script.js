@@ -184,40 +184,32 @@ let ytPlayer = null;
 function extrairVideoInfo(url) {
     const idMatch = url.match(/(?:youtube\.com\/embed\/|(?:youtube\.com\/watch\?v=|youtu\.be\/))([^?&]+)/);
     const tMatch = url.match(/[?&]t=(\d+)/);
-    const endMatch = url.match(/[?&]end=(\d+)/);
     return {
         videoId: idMatch ? idMatch[1] : null,
-        startTime: tMatch ? parseInt(tMatch[1]) : null,
-        endTime: endMatch ? parseInt(endMatch[1]) : null
+        startTime: tMatch ? parseInt(tMatch[1]) : null
     };
 }
 
-function inicializarYouTubePlayer(videoId, startTime, endTime) {
+function inicializarYouTubePlayer(videoId, startTime) {
     if (ytPlayer) {
         try { ytPlayer.destroy(); } catch (e) { }
         ytPlayer = null;
     }
 
-    const shouldBlock = !!(startTime || endTime);
-
     // Fallback: API not loaded yet, use plain iframe
     if (!window.YT || !window.YT.Player) {
         const container = document.getElementById('yt-player');
         if (container) {
-            let params = [];
-            if (startTime) params.push(`start=${startTime}`);
-            if (endTime) params.push(`end=${endTime}`);
-            const paramStr = params.length ? '?' + params.join('&') : '';
+            const paramStr = startTime ? `?start=${startTime}` : '';
             container.innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}${paramStr}" frameborder="0" allowfullscreen style="margin-top:10px; border-radius:6px;"></iframe>`;
         }
-        // Can't detect end in iframe fallback, so only block if no params (safe default)
-        if (!shouldBlock) liberarBotaoAvancar();
+        // In iframe fallback we can't detect ENDED, so always unlock
+        liberarBotaoAvancar();
         return;
     }
 
     const playerVars = { rel: 0, modestbranding: 1 };
     if (startTime) playerVars.start = startTime;
-    if (endTime) playerVars.end = endTime;
 
     ytPlayer = new YT.Player('yt-player', {
         height: '315',
@@ -233,8 +225,8 @@ function inicializarYouTubePlayer(videoId, startTime, endTime) {
         }
     });
 
-    // No time params = don't block
-    if (!shouldBlock) liberarBotaoAvancar();
+    // No t= param = don't block
+    if (startTime) liberarBotaoAvancar();
 }
 
 function liberarBotaoAvancar() {
@@ -250,8 +242,8 @@ function verificarResposta(letraEscolhida) {
     const q = questoes[indiceAtual];
     const resBox = document.getElementById('box-resolucao');
 
-    const { videoId, startTime, endTime } = q.video ? extrairVideoInfo(q.video) : {};
-    const shouldBlock = q.video && !!(startTime || endTime);
+    const { videoId, startTime } = q.video ? extrairVideoInfo(q.video) : {};
+    const shouldBlock = q.video && !startTime;
 
     if (letraEscolhida === q.respostaCorreta) {
         let pontosGanhos = (tentativas === 0) ? 10 : 5;
@@ -280,7 +272,7 @@ function verificarResposta(letraEscolhida) {
         resBox.className = "box box-resolucao sucesso-border";
         resBox.style.display = 'block';
 
-        if (q.video) inicializarYouTubePlayer(videoId, startTime, endTime);
+        if (q.video) inicializarYouTubePlayer(videoId, startTime);
     } else {
         tentativas++;
         document.getElementById(`btn-${letraEscolhida}`).disabled = true;
@@ -310,7 +302,7 @@ function verificarResposta(letraEscolhida) {
             resBox.className = "box box-resolucao erro-border";
             resBox.style.display = 'block';
 
-            if (q.video) inicializarYouTubePlayer(videoId, startTime, endTime);
+            if (q.video) inicializarYouTubePlayer(videoId, startTime);
         }
     }
 }
