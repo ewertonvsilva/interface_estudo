@@ -203,8 +203,11 @@ function inicializarYouTubePlayer(videoId, startTime) {
             const paramStr = startTime ? `?start=${startTime}` : '';
             container.innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}${paramStr}" frameborder="0" allowfullscreen style="margin-top:10px; border-radius:6px;"></iframe>`;
         }
-        // In iframe fallback we can't detect ENDED, so always unlock
-        liberarBotaoAvancar();
+        if (startTime) {
+            iniciarContadorDesbloqueio(90);
+        } else {
+            liberarBotaoAvancar();
+        }
         return;
     }
 
@@ -225,8 +228,29 @@ function inicializarYouTubePlayer(videoId, startTime) {
         }
     });
 
-    // No t= param = don't block
-    if (startTime) liberarBotaoAvancar();
+    // t= present → countdown 90s; no t= → block until video ends
+    if (startTime) iniciarContadorDesbloqueio(90);
+}
+
+function iniciarContadorDesbloqueio(segundosTotal) {
+    let restante = segundosTotal;
+    const btn = document.getElementById('btn-avancar-questao');
+
+    const intervalo = setInterval(() => {
+        restante--;
+        const btn = document.getElementById('btn-avancar-questao');
+        if (!btn) { clearInterval(intervalo); return; }
+
+        if (restante <= 0) {
+            clearInterval(intervalo);
+            liberarBotaoAvancar();
+        } else {
+            const mins = Math.floor(restante / 60);
+            const segs = String(restante % 60).padStart(2, '0');
+            btn.title = `Aguarde ${mins}:${segs}`;
+            btn.textContent = `⏳ Aguarde ${mins}:${segs}`;
+        }
+    }, 1000);
 }
 
 function liberarBotaoAvancar() {
@@ -234,6 +258,7 @@ function liberarBotaoAvancar() {
     if (btn) {
         btn.disabled = false;
         btn.removeAttribute('title');
+        btn.textContent = 'Avançar para a Próxima ➡️';
         btn.onclick = proximaQuestao;
     }
 }
