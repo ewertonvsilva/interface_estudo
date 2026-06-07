@@ -50,8 +50,7 @@ Passo 1: Somamos a quantidade de passageiros dos meses de Janeiro e Março:
 Passo 2: Subtraímos essa soma do total de passageiros do trimestre para encontrar o valor de Fevereiro:
 935.003 - 566.809 = 368.194
 
-Vídeo: 
-
+Vídeo: https://www.youtube.com/watch?v=9X-5T2ZnWuI
 ---
 
 # Questão 13
@@ -127,7 +126,7 @@ Passo 3: Subtraímos o tempo de redução do tempo original:
 Passo 4: Convertemos 270 minutos de volta para horas:
 270 / 60 = 4 horas (sobram 30 minutos) -> 4 horas e 30 minutos.
 
-Vídeo: 
+Vídeo: https://www.youtube.com/watch?v=zGzHlozILiY
 
 ---
 
@@ -160,22 +159,18 @@ Vídeo:
 # Questão 17
 ![Enunciado da Pergunta](questions/s1mat/q17.png)
 
-- A) 3/4 com a imagem correspondente
-- B) 1/3 com a imagem correspondente
-- C) 1/3 invertido
-- D) 3/4 com outra imagem
+- A) 
+- B) 
+- C)
+- D)
 
-Gabarito: B
+Gabarito: D
 
 Dica: 
 Observe que as pontas das peças que se tocam devem ser equivalentes. A fração escrita de uma peça deve representar exatamente a parte pintada da figura da peça vizinha. Veja qual fração representa o hexágono dividido na base e monte a próxima ponta para a fração 2/5.
 
 Explicação:
-Passo 1: Analisando o encaixe inferior: a fração 4/5 encosta no pentágono que tem 4 de suas 5 partes pintadas (correto). 
-Passo 2: O hexágono ao lado está dividido em 6 partes, das quais 2 estão pintadas. A fração 2/6 simplificada equivale a 1/3. Logo, o lado esquerdo da peça que subirá na vertical deve ser a fração 1/3.
-Passo 3: Para fechar o circuito no topo com a fração 2/5 da primeira peça, o outro lado da quinta peça precisará ter um desenho que represente a fração 1/3 para conectar com o hexágono.
-
-Vídeo: 
+Vídeo: https://www.youtube.com/watch?v=ulAC2oPY76A&t=15s&end=182
 
 ---
 
@@ -208,7 +203,7 @@ Passo 3: Aplicar o desconto de 10% após o meio-dia:
 
 *Correção do Gabarito conforme desenvolvimento matemático*: **B**.
 
-Vídeo: 
+Vídeo: https://www.youtube.com/watch?v=ulAC2oPY76A&t=12m45s&end=16m25s
 
 ---
 
@@ -268,8 +263,13 @@ Vamos calcular o preço final à vista em cada uma das lojas:
   Preço final = 1.550 - 155 = R$ 1.395,00
 
 **Loja III:** 12% de R$ 1.600 = R$ 192. 
-  Preço final = 1.600 - 192 = R$ 1.408,00 (Nota: Ao comparar os valores finais reais recalculados, R$ 1.395,00 da Loja II é estatisticamente o menor preço obtido).
+  Preço final = 1.600 - 192 = R$ 1.408,00 
+
+**Loja IV:** 8% de R$ 1.650 = R$ 132. 
+  Preço final = 1.650 - 132 = R$ 1.518,00 
+  
+Ao comparar os valores finais reais recalculados, R$ 1.395,00 da Loja II é o menor preço obtido.
 
 *Correção do Gabarito com base no recálculo financeiro estrito*: **B**.
 
-Vídeo:
+Vídeo: https://www.youtube.com/watch?v=Xyxv--IsOLs

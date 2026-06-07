@@ -13,20 +13,16 @@ const urlParams = new URLSearchParams(window.location.search);
 testeId = urlParams.get('teste');
 
 async function inicializar() {
-    // Atualiza o link do formulário no rodapé da página inicial
     document.getElementById('link-indice-externo').href = `https://docs.google.com/forms/d/e/1FAIpQLSc7ibzbk6aPBl8Yh6uG66ag7dttJ6zxUZwF6AXixSiPMFYJBQ/viewform`;
 
-    // Recupera se já havia um aluno logado nesta máquina
     alunoNomeOriginal = localStorage.getItem("atual_aluno_nome_original") || "";
     alunoNomeNormalizado = localStorage.getItem("atual_aluno_nome_normalizado") || "";
 
     if (!alunoNomeNormalizado) {
-        // Cenário 1: Se não sabe quem é o aluno, obriga a passar pela tela de login
         document.getElementById('container-login').style.display = 'block';
         document.getElementById('container-home').style.display = 'none';
         document.getElementById('container-jogo').style.display = 'none';
     } else {
-        // Cenário 2: Aluno reconhecido. Vai para o menu ou direto para o teste pendente
         if (!testeId) {
             carregarMenuPrincipal();
         } else {
@@ -35,7 +31,6 @@ async function inicializar() {
     }
 }
 
-// Trata, higieniza e padroniza o nome do aluno
 function entrarNaPlataforma() {
     const input = document.getElementById('input-aluno-nome').value.trim();
     if (!input) {
@@ -43,20 +38,17 @@ function entrarNaPlataforma() {
         return;
     }
 
-    // 1. Capitalização (Força primeira letra de cada palavra maiúscula, resto minúscula)
     alunoNomeOriginal = input.split(/\s+/).map(palavra => {
         return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
     }).join(' ');
 
-    // 2. Normalização (remove acentos, troca espaços por sublinhado, tudo minúsculo)
     alunoNomeNormalizado = alunoNomeOriginal
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // Remove acentos acentuados
+        .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, "") // Remove caracteres especiais extras
-        .replace(/\s+/g, "_");       // Troca espaços por _
+        .replace(/[^a-z0-9\s]/g, "")
+        .replace(/\s+/g, "_");
 
-    // Salva a sessão do aluno ativo no navegador
     localStorage.setItem("atual_aluno_nome_original", alunoNomeOriginal);
     localStorage.setItem("atual_aluno_nome_normalizado", alunoNomeNormalizado);
 
@@ -105,7 +97,6 @@ async function carregarTesteEspecifico(id) {
         if (!response.ok) throw new Error();
         const textoMarkdown = await response.text();
 
-        // 🧠 CHAVE EXCLUSIVA POR ALUNO: Vincula o progresso do LocalStorage ao ID do aluno ativo!
         pontosTotais = parseInt(localStorage.getItem(`${alunoNomeNormalizado}_pontos_${id}`)) || 0;
         indiceAtual = parseInt(localStorage.getItem(`${alunoNomeNormalizado}_progresso_${id}`)) || 0;
         document.getElementById('placar').innerText = pontosTotais;
@@ -190,33 +181,49 @@ function renderizarQuestao() {
 // Controle do YouTube Player
 let ytPlayer = null;
 
-function extrairVideoId(url) {
-    const match = url.match(/youtube\.com\/embed\/([^?&]+)/);
-    return match ? match[1] : null;
+function extrairVideoInfo(url) {
+    const idMatch = url.match(/(?:youtube\.com\/embed\/|(?:youtube\.com\/watch\?v=|youtu\.be\/))([^?&]+)/);
+    const tMatch = url.match(/[?&]t=(\d+)/);
+    const endMatch = url.match(/[?&]end=(\d+)/);
+    return {
+        videoId: idMatch ? idMatch[1] : null,
+        startTime: tMatch ? parseInt(tMatch[1]) : null,
+        endTime: endMatch ? parseInt(endMatch[1]) : null
+    };
 }
 
-function inicializarYouTubePlayer(videoId) {
-    // Destroi player anterior se houver
+function inicializarYouTubePlayer(videoId, startTime, endTime) {
     if (ytPlayer) {
-        try { ytPlayer.destroy(); } catch (e) {}
+        try { ytPlayer.destroy(); } catch (e) { }
         ytPlayer = null;
     }
 
-    // Fallback: se a API ainda não carregou, exibe iframe normal e libera o botão
+    const shouldBlock = !!(startTime || endTime);
+
+    // Fallback: API not loaded yet, use plain iframe
     if (!window.YT || !window.YT.Player) {
         const container = document.getElementById('yt-player');
         if (container) {
-            container.innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allowfullscreen style="margin-top:10px; border-radius:6px;"></iframe>`;
+            let params = [];
+            if (startTime) params.push(`start=${startTime}`);
+            if (endTime) params.push(`end=${endTime}`);
+            const paramStr = params.length ? '?' + params.join('&') : '';
+            container.innerHTML = `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}${paramStr}" frameborder="0" allowfullscreen style="margin-top:10px; border-radius:6px;"></iframe>`;
         }
-        liberarBotaoAvancar();
+        // Can't detect end in iframe fallback, so only block if no params (safe default)
+        if (!shouldBlock) liberarBotaoAvancar();
         return;
     }
+
+    const playerVars = { rel: 0, modestbranding: 1 };
+    if (startTime) playerVars.start = startTime;
+    if (endTime) playerVars.end = endTime;
 
     ytPlayer = new YT.Player('yt-player', {
         height: '315',
         width: '100%',
         videoId: videoId,
-        playerVars: { rel: 0, modestbranding: 1 },
+        playerVars: playerVars,
         events: {
             onStateChange: function (event) {
                 if (event.data === YT.PlayerState.ENDED) {
@@ -225,6 +232,9 @@ function inicializarYouTubePlayer(videoId) {
             }
         }
     });
+
+    // No time params = don't block
+    if (!shouldBlock) liberarBotaoAvancar();
 }
 
 function liberarBotaoAvancar() {
@@ -240,6 +250,9 @@ function verificarResposta(letraEscolhida) {
     const q = questoes[indiceAtual];
     const resBox = document.getElementById('box-resolucao');
 
+    const { videoId, startTime, endTime } = q.video ? extrairVideoInfo(q.video) : {};
+    const shouldBlock = q.video && !!(startTime || endTime);
+
     if (letraEscolhida === q.respostaCorreta) {
         let pontosGanhos = (tentativas === 0) ? 10 : 5;
         document.getElementById(`btn-${letraEscolhida}`).style.background = '#c8e6c9';
@@ -251,7 +264,6 @@ function verificarResposta(letraEscolhida) {
         document.querySelectorAll('.btn-opcao').forEach(btn => btn.disabled = true);
         document.getElementById('box-dica').style.display = 'none';
 
-        // Log de tempo e envio assíncrono para o Google Sheets
         const tempoGastoSegundos = Math.round((Date.now() - tempoInicioQuestao) / 1000);
         salvarStatusNoGoogleSheets(q.id, tentativas + 1, tempoGastoSegundos);
 
@@ -259,16 +271,16 @@ function verificarResposta(letraEscolhida) {
         if (q.resolucaoTexto) htmlResolucao += `<p>${q.resolucaoTexto}</p>`;
         if (q.video) {
             htmlResolucao += `<div id="yt-player" style="margin-top:10px; border-radius:6px; overflow:hidden;"></div>`;
-            htmlResolucao += `<p style="font-size:13px; color:#e65100; margin:8px 0 0; text-align:center;">📺 Assista ao vídeo completo para poder avançar</p>`;
+            if (shouldBlock) htmlResolucao += `<p style="font-size:13px; color:#e65100; margin:8px 0 0; text-align:center;">📺 Assista ao vídeo completo para poder avançar</p>`;
         }
-        const btnBloqueado = q.video ? 'disabled title="Assista ao vídeo completo primeiro"' : 'onclick="proximaQuestao()"';
+        const btnBloqueado = shouldBlock ? 'disabled title="Assista ao vídeo completo primeiro"' : 'onclick="proximaQuestao()"';
         htmlResolucao += `<button id="btn-avancar-questao" class="btn btn-avancar" ${btnBloqueado}>Avançar para a Próxima ➡️</button>`;
 
         resBox.innerHTML = htmlResolucao;
         resBox.className = "box box-resolucao sucesso-border";
         resBox.style.display = 'block';
 
-        if (q.video) inicializarYouTubePlayer(extrairVideoId(q.video));
+        if (q.video) inicializarYouTubePlayer(videoId, startTime, endTime);
     } else {
         tentativas++;
         document.getElementById(`btn-${letraEscolhida}`).disabled = true;
@@ -289,37 +301,35 @@ function verificarResposta(letraEscolhida) {
             if (q.resolucaoTexto) htmlResolucao += `<p>${q.resolucaoTexto}</p>`;
             if (q.video) {
                 htmlResolucao += `<div id="yt-player" style="margin-top:10px; border-radius:6px; overflow:hidden;"></div>`;
-                htmlResolucao += `<p style="font-size:13px; color:#e65100; margin:8px 0 0; text-align:center;">📺 Assista ao vídeo completo para poder avançar</p>`;
+                if (shouldBlock) htmlResolucao += `<p style="font-size:13px; color:#e65100; margin:8px 0 0; text-align:center;">📺 Assista ao vídeo completo para poder avançar</p>`;
             }
-            const btnBloqueado = q.video ? 'disabled title="Assista ao vídeo completo primeiro"' : 'onclick="proximaQuestao()"';
+            const btnBloqueado = shouldBlock ? 'disabled title="Assista ao vídeo completo primeiro"' : 'onclick="proximaQuestao()"';
             htmlResolucao += `<button id="btn-avancar-questao" class="btn btn-avancar" ${btnBloqueado}>Ir para a Próxima Questão</button>`;
 
             resBox.innerHTML = htmlResolucao;
             resBox.className = "box box-resolucao erro-border";
             resBox.style.display = 'block';
 
-            if (q.video) inicializarYouTubePlayer(extrairVideoId(q.video));
+            if (q.video) inicializarYouTubePlayer(videoId, startTime, endTime);
         }
     }
 }
 
 async function salvarStatusNoGoogleSheets(questaoId, totalTentativas, segundos) {
     const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSc7ibzbk6aPBl8Yh6uG66ag7dttJ6zxUZwF6AXixSiPMFYJBQ/formResponse";
-    
+
     const formData = new URLSearchParams();
-    formData.append("entry.573764493", alunoNomeOriginal); // Aluno
-    formData.append("entry.561164763", testeId);            // Simulado
-    formData.append("entry.1414238788", questaoId);        // Questao
-    formData.append("entry.742561518", totalTentativas);   // Tentativas
-    formData.append("entry.223264347", segundos);          // Tempo (s)
+    formData.append("entry.573764493", alunoNomeOriginal);
+    formData.append("entry.561164763", testeId);
+    formData.append("entry.1414238788", questaoId);
+    formData.append("entry.742561518", totalTentativas);
+    formData.append("entry.223264347", segundos);
 
     try {
         await fetch(GOOGLE_FORM_URL, {
             method: "POST",
             mode: "no-cors",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            },
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body: formData.toString()
         });
     } catch (e) {
