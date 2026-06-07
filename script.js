@@ -211,7 +211,7 @@ function inicializarYouTubePlayer(videoId, startTime) {
         return;
     }
 
-    const playerVars = { rel: 0, modestbranding: 1 };
+    const playerVars = { rel: 0, modestbranding: 1, controls: 0 };
     if (startTime) playerVars.start = startTime;
 
     ytPlayer = new YT.Player('yt-player', {
@@ -290,14 +290,14 @@ function verificarResposta(letraEscolhida) {
             htmlResolucao += `<div id="yt-player" style="margin-top:10px; border-radius:6px; overflow:hidden;"></div>`;
             if (shouldBlock) htmlResolucao += `<p style="font-size:13px; color:#e65100; margin:8px 0 0; text-align:center;">📺 Assista ao vídeo completo para poder avançar</p>`;
         }
-        const btnBloqueado = shouldBlock ? 'disabled title="Assista ao vídeo completo primeiro"' : 'onclick="proximaQuestao()"';
-        htmlResolucao += `<button id="btn-avancar-questao" class="btn btn-avancar" ${btnBloqueado}>Avançar para a Próxima ➡️</button>`;
+        htmlResolucao += `<button id="btn-avancar-questao" class="btn btn-avancar" disabled>Avançar para a Próxima ➡️</button>`;
 
         resBox.innerHTML = htmlResolucao;
         resBox.className = "box box-resolucao sucesso-border";
         resBox.style.display = 'block';
 
         if (q.video) inicializarYouTubePlayer(videoId, startTime);
+        else liberarBotaoAvancar();
     } else {
         tentativas++;
         document.getElementById(`btn-${letraEscolhida}`).disabled = true;
@@ -320,14 +320,14 @@ function verificarResposta(letraEscolhida) {
                 htmlResolucao += `<div id="yt-player" style="margin-top:10px; border-radius:6px; overflow:hidden;"></div>`;
                 if (shouldBlock) htmlResolucao += `<p style="font-size:13px; color:#e65100; margin:8px 0 0; text-align:center;">📺 Assista ao vídeo completo para poder avançar</p>`;
             }
-            const btnBloqueado = shouldBlock ? 'disabled title="Assista ao vídeo completo primeiro"' : 'onclick="proximaQuestao()"';
-            htmlResolucao += `<button id="btn-avancar-questao" class="btn btn-avancar" ${btnBloqueado}>Ir para a Próxima Questão</button>`;
+            htmlResolucao += `<button id="btn-avancar-questao" class="btn btn-avancar" disabled>Ir para a Próxima Questão</button>`;
 
             resBox.innerHTML = htmlResolucao;
             resBox.className = "box box-resolucao erro-border";
             resBox.style.display = 'block';
 
             if (q.video) inicializarYouTubePlayer(videoId, startTime);
+            else liberarBotaoAvancar();
         }
     }
 }
