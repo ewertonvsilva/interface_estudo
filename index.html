@@ -3,40 +3,56 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Plataforma de Estudos</title>
     <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             font-family: sans-serif;
             background: #f4f7f6;
             color: #333;
             margin: 0;
-            padding: 20px;
-            padding-bottom: 80px;
+            padding: 12px;
+            padding-bottom: 70px;
         }
 
         .container {
             max-width: 650px;
-            margin: 20px auto;
+            margin: 0 auto 16px auto;
             background: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
-        /* Tela de Login/Nome */
+        /* Tela de Login */
         .box-login {
             text-align: center;
-            padding: 20px;
+            padding: 10px 0;
+        }
+
+        .box-login h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .box-login p {
+            font-size: 15px;
+            color: #555;
         }
 
         .input-nome {
             width: 100%;
-            padding: 12px;
-            margin: 15px 0;
+            padding: 14px;
+            margin: 12px 0;
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
-            box-sizing: border-box;
+            /* 16px evita zoom automático no iOS */
         }
 
         .input-nome:focus {
@@ -44,39 +60,61 @@
             outline: none;
         }
 
+        /* Topo fixo do jogo */
         .topo-fixo {
+            position: sticky;
+            top: 0;
+            z-index: 100;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #ffffff;
-            padding: 15px 25px;
+            padding: 10px 14px;
             border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .placar {
-            font-size: 20px;
+            font-size: 16px;
             color: #2196F3;
             font-weight: bold;
             background: #e3f2fd;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 20px;
+            white-space: nowrap;
         }
 
+        #contador-passos {
+            font-size: 13px;
+            color: #606266;
+            font-weight: bold;
+            text-align: center;
+            flex: 1;
+            padding: 0 8px;
+        }
+
+        /* Botões */
         .btn {
-            padding: 14px 20px;
+            padding: 14px 16px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             width: 100%;
             text-align: left;
-            margin: 8px 0;
-            transition: 0.2s;
+            margin: 6px 0;
+            transition: background 0.15s, transform 0.1s;
             background: #eef2f3;
             border: 1px solid #dcdfe6;
+            line-height: 1.4;
+            /* Mínimo de 48px para área de toque */
+            min-height: 48px;
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.98);
         }
 
         .btn:hover:not(:disabled) {
@@ -84,7 +122,7 @@
         }
 
         .btn:disabled {
-            opacity: 0.7;
+            opacity: 0.65;
             cursor: not-allowed;
         }
 
@@ -93,6 +131,9 @@
             color: #666;
             width: auto;
             border: none;
+            min-width: 44px;
+            padding: 8px 10px;
+            font-size: 18px;
         }
 
         .btn-login {
@@ -101,25 +142,26 @@
             text-align: center;
         }
 
-        .btn-login:hover {
+        .btn-login:active {
             background: #45a049;
         }
 
         .img-enunciado {
             max-width: 100%;
             border-radius: 8px;
-            margin: 15px 0;
+            margin: 12px 0;
             display: block;
             border: 1px solid #eef2f3;
         }
 
+        /* Caixas de dica/resolução */
         .box {
-            padding: 18px;
-            margin: 20px 0;
+            padding: 14px 16px;
+            margin: 14px 0;
             border-radius: 8px;
             display: none;
             line-height: 1.6;
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .box-dica {
@@ -148,34 +190,41 @@
             background: #2196F3;
             color: white;
             text-align: center;
-            margin-top: 15px;
+            margin-top: 12px;
             width: 100%;
+            font-size: 16px;
+            padding: 16px;
         }
 
+        /* Menu de testes */
         .lista-testes {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         .card-teste {
             display: block;
-            padding: 18px;
+            padding: 16px;
             background: #eef2f3;
-            margin: 12px 0;
+            margin: 10px 0;
             border-radius: 8px;
             text-decoration: none;
             color: #333;
             font-weight: bold;
-            transition: 0.2s;
+            font-size: 15px;
+            transition: background 0.15s;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
         }
 
-        .card-teste:hover {
+        .card-teste:active {
             background: #2196F3;
             color: white;
-            transform: translateX(5px);
         }
 
-        /* Rodapé Fixo para o link do Dontpad */
+        /* Rodapé */
         .rodape-link {
             position: fixed;
             bottom: 0;
@@ -184,8 +233,9 @@
             background: #333;
             color: #fff;
             text-align: center;
-            padding: 12px 0;
-            font-size: 14px;
+            padding: 10px 16px;
+            font-size: 13px;
+            z-index: 200;
         }
 
         .rodape-link a {
@@ -194,8 +244,41 @@
             font-weight: bold;
         }
 
-        .rodape-link a:hover {
-            text-decoration: underline;
+        /* Vídeo responsivo */
+        #yt-player,
+        #yt-player iframe {
+            width: 100% !important;
+            border-radius: 6px;
+        }
+
+        /* Tablet/Desktop */
+        @media (min-width: 600px) {
+            body {
+                padding: 20px;
+                padding-bottom: 80px;
+            }
+
+            .container {
+                padding: 30px;
+            }
+
+            .btn {
+                font-size: 16px;
+            }
+
+            .card-teste:hover {
+                background: #2196F3;
+                color: white;
+                transform: translateX(5px);
+            }
+
+            .topo-fixo {
+                padding: 15px 25px;
+            }
+
+            .placar {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
@@ -205,7 +288,7 @@
     <div id="container-login" style="display:none;" class="container">
         <div class="box-login">
             <h2>👋 Boas-vindas ao Simulado!</h2>
-            <p>Por favor, digite seu nome completo para carregar seu progresso:</p>
+            <p>Digite seu nome completo para carregar seu progresso:</p>
             <input type="text" id="input-aluno-nome" class="input-nome" placeholder="Ex: Ewerton"
                 onkeypress="if(event.key === 'Enter') entrarNaPlataforma()">
             <button class="btn btn-login" onclick="entrarNaPlataforma()">Entrar no Simulado</button>
@@ -216,9 +299,9 @@
 
     <div id="container-jogo" style="display:none; max-width:650px; margin: 0 auto;">
         <div class="topo-fixo">
-            <button class="btn btn-voltar" onclick="voltarParaHome()">⬅️ Menu</button>
-            <div id="contador-passos" style="font-size: 15px; color: #606266; font-weight: bold;"></div>
-            <div class="placar">Pontos: <span id="placar">0</span> ⭐</div>
+            <button class="btn btn-voltar" onclick="voltarParaHome()">⬅️</button>
+            <div id="contador-passos"></div>
+            <div class="placar">⭐ <span id="placar">0</span></div>
         </div>
 
         <div class="container">
@@ -227,7 +310,7 @@
     </div>
 
     <div class="rodape-link">
-        📂 Central do Professor: <a id="link-indice-externo" href="#" target="_blank">Ver formulário de respostas e progresso</a>
+        📂 <a id="link-indice-externo" href="#" target="_blank">Formulário de respostas</a>
     </div>
 
     <script src="https://www.youtube.com/iframe_api"></script>
