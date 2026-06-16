@@ -1,6 +1,7 @@
 let questoes = [];
 let indiceAtual = 0;
 let indiceMaxRespondido = -1;
+let indiceMaxAlcancado = 0; // questão mais avançada já alcançada (só avança ao passar pela liberação)
 let respostasPorQuestao = {};
 let tentativas = 0;
 let pontosTotais = 0;
@@ -105,6 +106,9 @@ async function carregarTesteEspecifico(id) {
         indiceMaxRespondido = getIndiceMaxRespondido();
         document.getElementById('placar').innerText = pontosTotais;
 
+        // Reconstrói a fronteira alcançada ao recarregar: posição salva ou a questão seguinte à última respondida.
+        indiceMaxAlcancado = Math.max(indiceAtual, indiceMaxRespondido + 1);
+
         const blocos = textoMarkdown.split('---');
 
         questoes = blocos.map((bloco, index) => {
@@ -178,8 +182,7 @@ function renderizarQuestao() {
         botoesHtml += `<button id="btn-${alt.letra}" class="btn btn-opcao" style="background:${estadoCor}" onclick="verificarResposta('${alt.letra}')" ${desabilitado}>${alt.texto}</button>`;
     });
 
-    const limiteNavegacao = indiceMaxRespondido + 1; // questão mais avançada já alcançada (a próxima ainda não respondida)
-    const proximaAtiva = indiceAtual < questoes.length - 1 && indiceAtual + 1 <= limiteNavegacao;
+    const proximaAtiva = indiceAtual < questoes.length - 1 && indiceAtual < indiceMaxAlcancado;
     const anteriorAtivo = indiceAtual > 0;
     const navegacaoHtml = `
         <div class="nav-botoes">
@@ -333,21 +336,8 @@ function voltarQuestao() {
 }
 
 function proximaQuestaoControlada() {
-    const limiteNavegacao = indiceMaxRespondido + 1;
-    if (indiceAtual < questoes.length - 1 && indiceAtual + 1 <= limiteNavegacao) {
+    if (indiceAtual < questoes.length - 1 && indiceAtual < indiceMaxAlcancado) {
         indiceAtual++;
-        salvarProgressoAtual();
-        renderizarQuestao();
-    }
-}
-
-function proximaQuestao() {
-    if (indiceAtual < questoes.length - 1) {
-        indiceAtual++;
-        salvarProgressoAtual();
-        renderizarQuestao();
-    } else {
-        indiceAtual = questoes.length;
         salvarProgressoAtual();
         renderizarQuestao();
     }
@@ -465,6 +455,8 @@ function proximaQuestao() {
     } else {
         indiceAtual = questoes.length;
     }
+    // Avança a fronteira: este é o único caminho que passa pela liberação (vídeo/timer).
+    indiceMaxAlcancado = Math.max(indiceMaxAlcancado, indiceAtual);
     salvarProgressoAtual();
     renderizarQuestao();
 }
