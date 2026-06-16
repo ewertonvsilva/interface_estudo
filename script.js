@@ -1,5 +1,7 @@
 let questoes = [];
 let indiceAtual = 0;
+let indiceMaxRespondido = -1;
+let respostasPorQuestao = {};
 let tentativas = 0;
 let pontosTotais = 0;
 let testeId = "";
@@ -99,6 +101,8 @@ async function carregarTesteEspecifico(id) {
 
         pontosTotais = parseInt(localStorage.getItem(`${alunoNomeNormalizado}_pontos_${id}`)) || 0;
         indiceAtual = parseInt(localStorage.getItem(`${alunoNomeNormalizado}_progresso_${id}`)) || 0;
+        respostasPorQuestao = JSON.parse(localStorage.getItem(`${alunoNomeNormalizado}_respostas_${id}`) || '{}');
+        indiceMaxRespondido = getIndiceMaxRespondido();
         document.getElementById('placar').innerText = pontosTotais;
 
         const blocos = textoMarkdown.split('---');
@@ -158,7 +162,8 @@ function renderizarQuestao() {
     }
 
     const q = questoes[indiceAtual];
-    tentativas = 0;
+    const estadoQuestao = respostasPorQuestao[indiceAtual];
+    tentativas = estadoQuestao ? estadoQuestao.tentativas : 0;
     tempoInicioQuestao = Date.now();
 
     if (contadorTopo) {
@@ -167,15 +172,32 @@ function renderizarQuestao() {
 
     let botoesHtml = "";
     q.alternativas.forEach(alt => {
-        botoesHtml += `<button id="btn-${alt.letra}" class="btn btn-opcao" onclick="verificarResposta('${alt.letra}')">${alt.texto}</button>`;
+        const marcado = estadoQuestao && estadoQuestao.letraEscolhida === alt.letra;
+        const estadoCor = marcado ? (estadoQuestao.estado === 'acertou' ? '#c8e6c9' : '#ffcdd2') : '';
+        const desabilitado = estadoQuestao ? 'disabled' : '';
+        botoesHtml += `<button id="btn-${alt.letra}" class="btn btn-opcao" style="background:${estadoCor}" onclick="verificarResposta('${alt.letra}')" ${desabilitado}>${alt.texto}</button>`;
     });
+
+    const proximaAtiva = indiceAtual < questoes.length - 1 && indiceAtual + 1 <= indiceMaxRespondido;
+    const anteriorAtivo = indiceAtual > 0;
+    const navegacaoHtml = `
+        <div class="nav-botoes">
+            <button class="btn btn-nav" onclick="voltarQuestao()" ${anteriorAtivo ? '' : 'disabled'}>⬅️ Anterior</button>
+            <button class="btn btn-nav" onclick="proximaQuestaoControlada()" ${proximaAtiva ? '' : 'disabled'}>Próxima ➡️</button>
+        </div>
+    `;
 
     area.innerHTML = `
         ${q.imagem ? `<img src="${q.imagem}" class="img-enunciado">` : ''}
         <div id="bloco-alternativas">${botoesHtml}</div>
+        ${navegacaoHtml}
         <div id="box-dica" class="box box-dica"></div>
         <div id="box-resolucao" class="box box-resolucao"></div>
     `;
+
+    if (estadoQuestao) {
+        renderizarResolucaoAnterior(q, estadoQuestao);
+    }
 }
 
 // Controle do YouTube Player
@@ -263,6 +285,72 @@ function liberarBotaoAvancar() {
     }
 }
 
+function getIndiceMaxRespondido() {
+    const indices = Object.keys(respostasPorQuestao).map(key => Number(key));
+    if (indices.length === 0) return -1;
+    return Math.max(...indices);
+}
+
+function salvarRespostasPorQuestao() {
+    localStorage.setItem(`${alunoNomeNormalizado}_respostas_${testeId}`, JSON.stringify(respostasPorQuestao));
+}
+
+function salvarProgressoAtual() {
+    localStorage.setItem(`${alunoNomeNormalizado}_progresso_${testeId}`, indiceAtual);
+}
+
+function renderizarVideoReview(url) {
+    const { videoId, startTime } = extrairVideoInfo(url);
+    if (!videoId) return '';
+    const paramStr = `?rel=0&modestbranding=1${startTime ? `&start=${startTime}` : ''}`;
+    return `<iframe width="100%" height="315" src="https://www.youtube.com/embed/${videoId}${paramStr}" frameborder="0" allowfullscreen style="margin-top:10px; border-radius:6px;"></iframe>`;
+}
+
+function renderizarResolucaoAnterior(q, estadoQuestao) {
+    const resBox = document.getElementById('box-resolucao');
+    const dicaBox = document.getElementById('box-dica');
+    dicaBox.style.display = 'none';
+
+    const corClasse = estadoQuestao.estado === 'acertou' ? 'sucesso-border' : 'erro-border';
+    let htmlResolucao = estadoQuestao.estado === 'acertou'
+        ? `<h4>🌟 Questão respondida corretamente (${estadoQuestao.tentativas} tentativa${estadoQuestao.tentativas === 1 ? '' : 's'})</h4>`
+        : `<h4>⚠️ Questão revisada após erro</h4>`;
+
+    if (q.resolucaoTexto) htmlResolucao += `<p>${q.resolucaoTexto}</p>`;
+    if (q.video) htmlResolucao += renderizarVideoReview(q.video);
+
+    resBox.innerHTML = htmlResolucao;
+    resBox.className = `box box-resolucao ${corClasse}`;
+    resBox.style.display = 'block';
+}
+
+function voltarQuestao() {
+    if (indiceAtual <= 0) return;
+    indiceAtual--;
+    salvarProgressoAtual();
+    renderizarQuestao();
+}
+
+function proximaQuestaoControlada() {
+    if (indiceAtual < questoes.length - 1 && indiceAtual + 1 <= indiceMaxRespondido) {
+        indiceAtual++;
+        salvarProgressoAtual();
+        renderizarQuestao();
+    }
+}
+
+function proximaQuestao() {
+    if (indiceAtual < questoes.length - 1) {
+        indiceAtual++;
+        salvarProgressoAtual();
+        renderizarQuestao();
+    } else {
+        indiceAtual = questoes.length;
+        salvarProgressoAtual();
+        renderizarQuestao();
+    }
+}
+
 function verificarResposta(letraEscolhida) {
     const q = questoes[indiceAtual];
     const resBox = document.getElementById('box-resolucao');
@@ -296,6 +384,8 @@ function verificarResposta(letraEscolhida) {
         resBox.className = "box box-resolucao sucesso-border";
         resBox.style.display = 'block';
 
+        registrarRespostaQuestao(q, 'acertou', letraEscolhida);
+
         if (q.video) inicializarYouTubePlayer(videoId, startTime);
         else liberarBotaoAvancar();
     } else {
@@ -326,10 +416,23 @@ function verificarResposta(letraEscolhida) {
             resBox.className = "box box-resolucao erro-border";
             resBox.style.display = 'block';
 
+            registrarRespostaQuestao(q, 'errou', letraEscolhida);
+
             if (q.video) inicializarYouTubePlayer(videoId, startTime);
             else liberarBotaoAvancar();
         }
     }
+}
+
+function registrarRespostaQuestao(q, estado, letraEscolhida) {
+    respostasPorQuestao[indiceAtual] = {
+        estado: estado,
+        tentativas: tentativas + 1,
+        letraEscolhida: letraEscolhida,
+        atualizadoEm: new Date().toISOString()
+    };
+    indiceMaxRespondido = Math.max(indiceMaxRespondido, indiceAtual);
+    salvarRespostasPorQuestao();
 }
 
 async function salvarStatusNoGoogleSheets(questaoId, totalTentativas, segundos) {
@@ -355,8 +458,12 @@ async function salvarStatusNoGoogleSheets(questaoId, totalTentativas, segundos) 
 }
 
 function proximaQuestao() {
-    indiceAtual++;
-    localStorage.setItem(`${alunoNomeNormalizado}_progresso_${testeId}`, indiceAtual);
+    if (indiceAtual < questoes.length - 1) {
+        indiceAtual++;
+    } else {
+        indiceAtual = questoes.length;
+    }
+    salvarProgressoAtual();
     renderizarQuestao();
 }
 

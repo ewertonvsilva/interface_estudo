@@ -196,6 +196,31 @@
             padding: 16px;
         }
 
+        .nav-botoes {
+            display: flex;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        .btn-nav {
+            flex: 1;
+            background: #f0f4f8;
+            color: #333;
+            border: 1px solid #dcdfe6;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+
+        .btn-nav:hover:not(:disabled) {
+            background: #e8eef4;
+        }
+
+        .btn-nav:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         /* Menu de testes */
         .lista-testes {
             list-style: none;
