@@ -224,7 +224,6 @@ function mostrarDica(q) {
 
 function verDica() {
     if (dicasUsadas[indiceAtual]) return;
-    if (!confirm("Ver a dica vai descontar 5 pontos desta questão. Deseja continuar?")) return;
 
     dicasUsadas[indiceAtual] = true;
     salvarDicasUsadas();
