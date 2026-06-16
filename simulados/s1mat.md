@@ -51,6 +51,7 @@ Passo 2: Subtraímos essa soma do total de passageiros do trimestre para encontr
 935.003 - 566.809 = 368.194
 
 Vídeo: https://www.youtube.com/embed/9X-5T2ZnWuI?si=CrO2xx1FeCmB5YRm
+
 ---
 
 # Questão 13
@@ -127,6 +128,7 @@ Passo 4: Convertemos 270 minutos de volta para horas:
 270 / 60 = 4 horas (sobram 30 minutos) -> 4 horas e 30 minutos.
 
 Vídeo: https://www.youtube.com/embed/zGzHlozILiY?si=ly8wNzDSnfDa0Fgn
+
 ---
 
 # Questão 16
@@ -169,6 +171,7 @@ Dica:
 Observe que as pontas das peças que se tocam devem ser equivalentes. A fração escrita de uma peça deve representar exatamente a parte pintada da figura da peça vizinha. Veja qual fração representa o hexágono dividido na base e monte a próxima ponta para a fração 2/5.
 
 Explicação:
+
 Vídeo: https://www.youtube.com/embed/ulAC2oPY76A?si=d8DlK7dDaRSjnOWb&t=15s&end=182
 
 ---
