@@ -178,7 +178,8 @@ function renderizarQuestao() {
         botoesHtml += `<button id="btn-${alt.letra}" class="btn btn-opcao" style="background:${estadoCor}" onclick="verificarResposta('${alt.letra}')" ${desabilitado}>${alt.texto}</button>`;
     });
 
-    const proximaAtiva = indiceAtual < questoes.length - 1 && indiceAtual + 1 <= indiceMaxRespondido;
+    const limiteNavegacao = indiceMaxRespondido + 1; // questão mais avançada já alcançada (a próxima ainda não respondida)
+    const proximaAtiva = indiceAtual < questoes.length - 1 && indiceAtual + 1 <= limiteNavegacao;
     const anteriorAtivo = indiceAtual > 0;
     const navegacaoHtml = `
         <div class="nav-botoes">
@@ -332,7 +333,8 @@ function voltarQuestao() {
 }
 
 function proximaQuestaoControlada() {
-    if (indiceAtual < questoes.length - 1 && indiceAtual + 1 <= indiceMaxRespondido) {
+    const limiteNavegacao = indiceMaxRespondido + 1;
+    if (indiceAtual < questoes.length - 1 && indiceAtual + 1 <= limiteNavegacao) {
         indiceAtual++;
         salvarProgressoAtual();
         renderizarQuestao();
