@@ -3,6 +3,7 @@ let indiceAtual = 0;
 let indiceMaxRespondido = -1;
 let indiceMaxAlcancado = 0; // questão mais avançada já alcançada (só avança ao passar pela liberação)
 let respostasPorQuestao = {};
+let dicasUsadas = {}; // questões em que o aluno pediu a dica voluntariamente (custo de 5 pontos)
 let tentativas = 0;
 let pontosTotais = 0;
 let testeId = "";
@@ -103,6 +104,7 @@ async function carregarTesteEspecifico(id) {
         pontosTotais = parseInt(localStorage.getItem(`${alunoNomeNormalizado}_pontos_${id}`)) || 0;
         indiceAtual = parseInt(localStorage.getItem(`${alunoNomeNormalizado}_progresso_${id}`)) || 0;
         respostasPorQuestao = JSON.parse(localStorage.getItem(`${alunoNomeNormalizado}_respostas_${id}`) || '{}');
+        dicasUsadas = JSON.parse(localStorage.getItem(`${alunoNomeNormalizado}_dicas_${id}`) || '{}');
         indiceMaxRespondido = getIndiceMaxRespondido();
         document.getElementById('placar').innerText = pontosTotais;
 
@@ -182,6 +184,12 @@ function renderizarQuestao() {
         botoesHtml += `<button id="btn-${alt.letra}" class="btn btn-opcao" style="background:${estadoCor}" onclick="verificarResposta('${alt.letra}')" ${desabilitado}>${alt.texto}</button>`;
     });
 
+    // Botão para revelar a dica sem errar (só antes de responder e se ainda não foi pedida).
+    let dicaBotaoHtml = "";
+    if (!estadoQuestao && !dicasUsadas[indiceAtual]) {
+        dicaBotaoHtml = `<button id="btn-ver-dica" class="btn btn-dica" onclick="verDica()">💡 Ver Dica (-5 pontos)</button>`;
+    }
+
     const proximaAtiva = indiceAtual < questoes.length - 1 && indiceAtual < indiceMaxAlcancado;
     const anteriorAtivo = indiceAtual > 0;
     const navegacaoHtml = `
@@ -194,6 +202,7 @@ function renderizarQuestao() {
     area.innerHTML = `
         ${q.imagem ? `<img src="${q.imagem}" class="img-enunciado">` : ''}
         <div id="bloco-alternativas">${botoesHtml}</div>
+        ${dicaBotaoHtml}
         ${navegacaoHtml}
         <div id="box-dica" class="box box-dica"></div>
         <div id="box-resolucao" class="box box-resolucao"></div>
@@ -201,7 +210,33 @@ function renderizarQuestao() {
 
     if (estadoQuestao) {
         renderizarResolucaoAnterior(q, estadoQuestao);
+    } else if (dicasUsadas[indiceAtual]) {
+        mostrarDica(q);
     }
+}
+
+function mostrarDica(q) {
+    const dicaBox = document.getElementById('box-dica');
+    if (!dicaBox) return;
+    dicaBox.innerHTML = `💡 <strong>Dica:</strong><br>${q.dica}`;
+    dicaBox.style.display = 'block';
+}
+
+function verDica() {
+    if (dicasUsadas[indiceAtual]) return;
+    if (!confirm("Ver a dica vai descontar 5 pontos desta questão. Deseja continuar?")) return;
+
+    dicasUsadas[indiceAtual] = true;
+    salvarDicasUsadas();
+
+    const btn = document.getElementById('btn-ver-dica');
+    if (btn) btn.remove();
+
+    mostrarDica(questoes[indiceAtual]);
+}
+
+function salvarDicasUsadas() {
+    localStorage.setItem(`${alunoNomeNormalizado}_dicas_${testeId}`, JSON.stringify(dicasUsadas));
 }
 
 // Controle do YouTube Player
@@ -352,6 +387,7 @@ function verificarResposta(letraEscolhida) {
 
     if (letraEscolhida === q.respostaCorreta) {
         let pontosGanhos = (tentativas === 0) ? 10 : 5;
+        if (dicasUsadas[indiceAtual]) pontosGanhos = Math.max(0, pontosGanhos - 5); // dica pedida: -5 pontos
         document.getElementById(`btn-${letraEscolhida}`).style.background = '#c8e6c9';
 
         pontosTotais += pontosGanhos;
@@ -468,6 +504,7 @@ function voltarParaHome() {
 function limparProgressoEVoltar() {
     localStorage.removeItem(`${alunoNomeNormalizado}_pontos_${testeId}`);
     localStorage.removeItem(`${alunoNomeNormalizado}_progresso_${testeId}`);
+    localStorage.removeItem(`${alunoNomeNormalizado}_dicas_${testeId}`);
     window.location.href = "?";
 }
 
